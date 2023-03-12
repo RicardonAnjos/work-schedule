@@ -69,7 +69,7 @@ export function WorkSchedule() {
 
   return (
     <form onSubmit={handleScheduleUpdate}>
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 6, backgroundColor: '-moz-initial' }}>
         <Box sx={{ display: 'flex', gap: 6 }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, alignItems: 'center' }}>
             <ToggleButtonGroup

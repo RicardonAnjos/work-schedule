@@ -1,39 +1,59 @@
 import { Box, ToggleButton, ToggleButtonGroup, Grid, TextField, Button, DialogActions } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import axios from 'axios';
 
-interface WorkScheduleProps {
+interface WorkSchedule {
   id: string;
   startTime: string;
   endTime: string;
-  days: number[];
+  days: string[];
 }
 
 export function WorkSchedule() {
-  const [workSchedule, setWorkSchedule] = useState<WorkScheduleProps[]>([]);
+  const [workSchedule, setWorkSchedule] = useState<WorkSchedule[]>([]);
   const [weekDays, setWeekDays] = useState<string[]>([]);
-
-  const handleWeekDaysChange = (event: React.MouseEvent<HTMLElement>, newWeekDays: string[]) => {
-    setWeekDays(newWeekDays);
-  };
 
   useEffect(() => {
     axios.get('http://localhost:3333/schedule')
-      .then((response) => {
+      .then((response) => {     
         setWorkSchedule(response.data);
       });
-  }, []); // adicionamos um array vazio para que o useEffect só execute uma vez, quando o componente for montado
+  }, []);
+
+  async function handleUpdate(event: FormEvent) {
+    event.preventDefault();
+
+    const formData = new FormData(event.target as HTMLFormElement);
+    const data = Object.fromEntries(formData);
+
+    console.log(data.id);
+    
+    if (!data.id) {
+      return;
+    }
+
+    try {
+      await axios.put(`http://localhost:3333/schedule/${data.id}`, {
+        startTime: data.startTime,
+        endTime: data.endTime,
+        days: weekDays.map(Number),
+      });
+
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   return (
-    <form>
+    <form onSubmit={handleUpdate}>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
         <Box sx={{ display: 'flex', gap: 6 }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <ToggleButtonGroup
               value={weekDays}
-              onChange={handleWeekDaysChange}
               aria-label="week days"
-              size="small"
+              onChange={(_, newWeekDays) => setWeekDays(newWeekDays)}
+              size="large"
             >
               <ToggleButton value="1" aria-label="Segunda">
                 S
@@ -54,11 +74,11 @@ export function WorkSchedule() {
 
             <Grid container spacing={2}>
               <Grid item xs={6}>
-                <TextField label="De" variant="outlined" type="time" fullWidth />
+                <TextField label="" variant="outlined" type="time" fullWidth />
               </Grid>
 
               <Grid item xs={6}>
-                <TextField label="Até" variant="outlined" type="time" fullWidth />
+                <TextField label="" variant="outlined" type="time" fullWidth />
               </Grid>
             </Grid>
             <DialogActions>

@@ -15,7 +15,7 @@ export function WorkSchedule() {
 
   useEffect(() => {
     axios.get('http://localhost:3333/schedule')
-      .then((response) => {     
+      .then((response) => {
         setWorkSchedule(response.data);
       });
   }, []);
@@ -27,7 +27,7 @@ export function WorkSchedule() {
     const data = Object.fromEntries(formData);
 
     console.log(data.id);
-    
+
     if (!data.id) {
       return;
     }
@@ -48,7 +48,7 @@ export function WorkSchedule() {
     <form onSubmit={handleUpdate}>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
         <Box sx={{ display: 'flex', gap: 6 }}>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, alignItems: 'center' }}>
             <ToggleButtonGroup
               value={weekDays}
               aria-label="week days"
@@ -74,18 +74,61 @@ export function WorkSchedule() {
 
             <Grid container spacing={2}>
               <Grid item xs={6}>
-                <TextField label="" variant="outlined" type="time" fullWidth />
+                <TextField
+                  label="De"
+                  variant="outlined"
+                  type="time"
+                  fullWidth
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                />
               </Grid>
 
               <Grid item xs={6}>
-                <TextField label="" variant="outlined" type="time" fullWidth />
+                <TextField
+                  label="Até"
+                  variant="outlined"
+                  type="time"
+                  fullWidth
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField
+                  label="De"
+                  variant="outlined"
+                  type="time"
+                  fullWidth
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                />
+              </Grid>
+
+              <Grid item xs={6}>
+                <TextField
+                  label="Até"
+                  variant="outlined"
+                  type="time"
+                  fullWidth
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                />
               </Grid>
             </Grid>
-            <DialogActions>
+            <DialogActions
+              style={{ justifyContent: 'flex-end', marginLeft: 'auto' }}
+            >
               <Button
                 variant="contained"
                 color="primary"
-                className="bg-violet-500 px-5 h-12 rounded-md font-semibold hover:bg-violet-600"
+                size='large'
+                type="submit"
+                className="MuiButton-root MuiButton-contained bg-violet-500 px-5 h-12 rounded-md font-semibold hover:bg-violet-600 "
               >
                 Salvar
               </Button>

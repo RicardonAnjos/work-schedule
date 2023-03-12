@@ -107,9 +107,6 @@ export function WorkSchedule() {
                   InputLabelProps={{
                     shrink: true,
                   }}
-                  InputProps={{
-                    disableUnderline: true,
-                  }}
                 />
               </Grid>
               <Grid item xs={6}>

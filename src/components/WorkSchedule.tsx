@@ -28,10 +28,10 @@ export function WorkSchedule() {
 
     if (!updatedSchedule) return;
 
-    const { id, startTime, endTime } = updatedSchedule;
+    const { id, startTime, endTime, days } = updatedSchedule;
 
     try {
-      await axios.put(`http://localhost:3333/schedule/${id}`, { startTime, endTime });
+      await axios.put(`http://localhost:3333/schedule/${id}`, { startTime, endTime, days });
 
       setWorkSchedule((prevSchedule) =>
         prevSchedule.map((schedule) => {
@@ -52,14 +52,16 @@ export function WorkSchedule() {
   }, [updatedSchedule]);
 
   function handleStartTimeChange(event: ChangeEvent<HTMLInputElement>) {
+    const selectedDay = weekDay[0];
     setUpdatedSchedule((prevSchedule) =>
-      prevSchedule ? { ...prevSchedule, startTime: event.target.value } : null
+      prevSchedule ? { ...prevSchedule, startTime: event.target.value, days: [selectedDay] } : null
     );
   }
 
   function handleEndTimeChange(event: ChangeEvent<HTMLInputElement>) {
+    const selectedDay = weekDay[0];
     setUpdatedSchedule((prevSchedule) =>
-      prevSchedule ? { ...prevSchedule, endTime: event.target.value } : null
+      prevSchedule ? { ...prevSchedule, endTime: event.target.value, days: [selectedDay] } : null
     );
   }
 

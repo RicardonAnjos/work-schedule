@@ -8,12 +8,14 @@ interface WorkSchedule {
   id: string;
   startTime: string;
   endTime: string;
-  days: string[];
+  day: string;
 }
 
 export function WorkSchedule() {
   const [workSchedule, setWorkSchedule] = useState<WorkSchedule[]>([]);
   const [day, setDay] = useState<string>('');
+  const [startTime, setStartTime] = useState<string>('');
+  const [endTime, setEndTime] = useState<string>('');
 
 
   useEffect(() => {
@@ -25,19 +27,15 @@ export function WorkSchedule() {
       });
   }, []);
 
-  const handleScheduleUpdate = useCallback(async (event: FormEvent) => {
-    event.preventDefault();
+  const handleScheduleUpdate = async () => {
+    const data = {
+      day,
+      startTime,
+      endTime,
+    };
 
-    const formData = new FormData(event.target as HTMLFormElement);
-    const data = Object.fromEntries(formData);
-
-    await axios.put(`http://localhost:5555/schedule/${data.id}`, {
-      startTime: data.startTime,
-      endTime: data.endTime,
-      day: data.day,
-    });
-
-  }, []);
+    await axios.put(`http://localhost:5555/schedule/${workSchedule[0].id}`, data);
+  }
 
   return (
     <form onSubmit={handleScheduleUpdate}>
@@ -48,7 +46,11 @@ export function WorkSchedule() {
               aria-label="week days"
               size="large"
               value={day}
-              onChange={(_event, newDay) => { setDay(newDay); }}
+              onChange={
+                (event: ChangeEvent<{}>, newDay: SetStateAction<string>) => {
+                  setDay(newDay);
+                }
+              }
             >
               <ToggleButton value="Seqgunda" aria-label="Segunda">
                 S
@@ -70,6 +72,42 @@ export function WorkSchedule() {
             <Grid container spacing={2}>
               <Grid item xs={6}>
                 <TextField
+                  name="startTime"
+                  label="De"
+                  variant="filled"
+                  type="time"
+                  fullWidth
+                  sx={{ mb: 2 }}
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                  onChange={ 
+                    (event: ChangeEvent<HTMLInputElement>) => {
+                      setStartTime(event.target.value);
+                    }
+                  }
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField
+                  name="endTime"
+                  label="Até"
+                  variant="filled"
+                  type="time"
+                  fullWidth
+                  sx={{ mb: 2 }}
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                  onChange={
+                    (event: ChangeEvent<HTMLInputElement>) => {
+                      setEndTime(event.target.value);
+                    }
+                  }
+                />
+              </Grid>
+              {/* <Grid item xs={6}>
+                <TextField
                   label="De"
                   variant="filled"
                   type="time"
@@ -91,31 +129,7 @@ export function WorkSchedule() {
                     shrink: true,
                   }}
                 />
-              </Grid>
-              <Grid item xs={6}>
-                <TextField
-                  label="De"
-                  variant="filled"
-                  type="time"
-                  fullWidth
-                  sx={{ mb: 2 }}
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                />
-              </Grid>
-              <Grid item xs={6}>
-                <TextField
-                  label="Até"
-                  variant="filled"
-                  type="time"
-                  fullWidth
-                  sx={{ mb: 2 }}
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                />
-              </Grid>
+              </Grid> */}
             </Grid>
 
             <DialogActions

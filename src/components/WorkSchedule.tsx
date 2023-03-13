@@ -13,59 +13,31 @@ interface WorkSchedule {
 
 export function WorkSchedule() {
   const [workSchedule, setWorkSchedule] = useState<WorkSchedule[]>([]);
-  const [weekDay, setWeekDay] = useState<string[]>([]);
-  const [updatedSchedule, setUpdatedSchedule] = useState<WorkSchedule | null>(null);
+  const [day, setDay] = useState<string>('');
+
 
   useEffect(() => {
-    axios.get('http://localhost:3333/schedule')
+    axios.get('http://localhost:5555/schedule')
       .then((response) => {
         setWorkSchedule(response.data);
+        console.log(response.data);
+
       });
   }, []);
 
-  const handleScheduleUpdate = useCallback(async (event: FormEvent<HTMLFormElement>) => {
+  const handleScheduleUpdate = useCallback(async (event: FormEvent) => {
     event.preventDefault();
 
-    if (!updatedSchedule) return;
+    const formData = new FormData(event.target as HTMLFormElement);
+    const data = Object.fromEntries(formData);
 
-    const { id, startTime, endTime, days } = updatedSchedule;
+    await axios.put(`http://localhost:5555/schedule/${data.id}`, {
+      startTime: data.startTime,
+      endTime: data.endTime,
+      day: data.day,
+    });
 
-    try {
-      await axios.put(`http://localhost:3333/schedule/${id}`, { startTime, endTime, days });
-
-      setWorkSchedule((prevSchedule) =>
-        prevSchedule.map((schedule) => {
-          if (schedule.id === id) {
-            return updatedSchedule;
-          } else {
-            return schedule;
-          }
-        })
-      );
-
-      setUpdatedSchedule(null);
-      alert('Horário atualizado com sucesso!');
-    } catch (error) {
-      console.error(error);
-      alert('Erro ao atualizar horário!');
-    }
-  }, [updatedSchedule]);
-
-  function handleStartTimeChange(event: ChangeEvent<HTMLInputElement>) {
-    const selectedDay = weekDay[0];
-    setUpdatedSchedule((prevSchedule) =>
-      prevSchedule ? { ...prevSchedule, startTime: event.target.value, days: [selectedDay] } : null
-    );
-  }
-
-  function handleEndTimeChange(event: ChangeEvent<HTMLInputElement>) {
-    const selectedDay = weekDay[0];
-    setUpdatedSchedule((prevSchedule) =>
-      prevSchedule ? { ...prevSchedule, endTime: event.target.value, days: [selectedDay] } : null
-    );
-  }
-
-
+  }, []);
 
   return (
     <form onSubmit={handleScheduleUpdate}>
@@ -75,8 +47,8 @@ export function WorkSchedule() {
             <ToggleButtonGroup
               aria-label="week days"
               size="large"
-              value={weekDay}
-              onChange={(_event, newValue) => setWeekDay(newValue as string[])}
+              value={day}
+              onChange={(_event, newDay) => { setDay(newDay); }}
             >
               <ToggleButton value="1" aria-label="Segunda">
                 S
@@ -98,7 +70,6 @@ export function WorkSchedule() {
             <Grid container spacing={2}>
               <Grid item xs={6}>
                 <TextField
-                  onChange={handleStartTimeChange}
                   label="De"
                   variant="filled"
                   type="time"
@@ -114,7 +85,6 @@ export function WorkSchedule() {
                   label="Até"
                   variant="filled"
                   type="time"
-                  onChange={handleEndTimeChange}
                   fullWidth
                   sx={{ mb: 2 }}
                   InputLabelProps={{
@@ -127,7 +97,6 @@ export function WorkSchedule() {
                   label="De"
                   variant="filled"
                   type="time"
-                  onChange={handleStartTimeChange}
                   fullWidth
                   sx={{ mb: 2 }}
                   InputLabelProps={{
@@ -140,7 +109,6 @@ export function WorkSchedule() {
                   label="Até"
                   variant="filled"
                   type="time"
-                  onChange={handleEndTimeChange}
                   fullWidth
                   sx={{ mb: 2 }}
                   InputLabelProps={{

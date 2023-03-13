@@ -50,19 +50,19 @@ export function WorkSchedule() {
               value={day}
               onChange={(_event, newDay) => { setDay(newDay); }}
             >
-              <ToggleButton value="1" aria-label="Segunda">
+              <ToggleButton value="Seqgunda" aria-label="Segunda">
                 S
               </ToggleButton>
-              <ToggleButton value="2" aria-label="Terça">
+              <ToggleButton value="Terça" aria-label="Terça">
                 T
               </ToggleButton>
-              <ToggleButton value="3" aria-label="Quarta">
+              <ToggleButton value="Quarta" aria-label="Quarta">
                 Q
               </ToggleButton>
-              <ToggleButton value="4" aria-label="Quinta">
+              <ToggleButton value="Quinta" aria-label="Quinta">
                 Q
               </ToggleButton>
-              <ToggleButton value="5" aria-label="Sexta">
+              <ToggleButton value="Sexta" aria-label="Sexta">
                 S
               </ToggleButton>
             </ToggleButtonGroup>

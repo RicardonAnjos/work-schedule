@@ -1,153 +1,174 @@
-import { Box, ToggleButton, ToggleButtonGroup, Grid, TextField, Button, DialogActions } from '@mui/material';
+import { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
 
-import { FormEvent, useEffect, useState, useCallback, ChangeEvent, SetStateAction } from 'react';
+import axios from "axios";
+import {
+  Box,
+  Button,
+  Checkbox,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  FormControl,
+  FormControlLabel,
+  FormGroup,
+  FormLabel,
+  TextField,
+  Grid,
+} from "@mui/material";
 
-import axios from 'axios';
-
-interface WorkSchedule {
+interface Schedule {
   id: string;
+  day: string;
   startTime: string;
   endTime: string;
-  day: string;
 }
 
-export function WorkSchedule() {
-  const [workSchedule, setWorkSchedule] = useState<WorkSchedule[]>([]);
-  const [day, setDay] = useState<string>('');
-  const [startTime, setStartTime] = useState<string>('');
-  const [endTime, setEndTime] = useState<string>('');
+export const WorkSchedule = () => {
+  const [schedule, setSchedule] = useState<Schedule[]>([]);
+  const [dayOfWeek, setDayOfWeek] = useState<string>("");
+  const [startTime, setStartTime] = useState<string>("");
+  const [endTime, setEndTime] = useState<string>("");
+  const [showDialog, setShowDialog] = useState<boolean>(false);
+  const { register, handleSubmit, reset } = useForm();
 
+  const loadSchedule = async () => {
+    try {
+      const response = await axios.get<Schedule[]>("http://localhost:5555/schedule");
+      console.log(response.data);
+      
+      setSchedule(response.data);
+    } catch (error) {
+      console.error(error);
+      alert("Erro ao carregar horários de trabalho.");
+    }
+  };
 
   useEffect(() => {
-    axios.get('http://localhost:5555/schedule')
-      .then((response) => {
-        setWorkSchedule(response.data);
-        console.log(response.data);
-
-      });
+    loadSchedule();
   }, []);
 
-  const handleScheduleUpdate = async () => {
-    const data = {
-      day,
-      startTime,
-      endTime,
-    };
+  const handleDayOfWeekChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setDayOfWeek(event.target.name);
+  };
 
-    await axios.put(`http://localhost:5555/schedule/${workSchedule[0].id}`, data);
-  }
+  const handleStartTimeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setStartTime(event.target.value);
+  };
+
+  const handleEndTimeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setEndTime(event.target.value);
+  };
+
+  const handleDialogOpen = (dayOfWeek: string, startTime: string, endTime: string) => {
+    setDayOfWeek(dayOfWeek);
+    setStartTime(startTime);
+    setEndTime(endTime);
+    setShowDialog(true);
+  };
+
+  const handleDialogClose = () => {
+    setShowDialog(false);
+    reset();
+  };
+
+  const handleScheduleUpdate = async () => {
+    try {
+      const sId = schedule.find((s) => s.day === dayOfWeek)?.id;
+      
+      const response = await axios.put<Schedule>(`http://localhost:5555/schedule/${sId}`, {
+        startTime,
+        endTime,
+      });
+      setSchedule((oldSchedule) =>
+        oldSchedule.map((s) => (s.id === response.data.id ? response.data : s))
+      );
+      console.log(response.data);
+      
+      setShowDialog(false);
+    } catch (error) {
+      console.error(error);
+      alert("Erro ao atualizar horário de trabalho.");
+    }
+  };
 
   return (
-    <form onSubmit={handleScheduleUpdate}>
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 6, backgroundColor: '-moz-initial' }}>
-        <Box sx={{ display: 'flex', gap: 6 }}>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, alignItems: 'center' }}>
-            <ToggleButtonGroup
-              aria-label="week days"
-              size="large"
-              value={day}
-              onChange={
-                (event: ChangeEvent<{}>, newDay: SetStateAction<string>) => {
-                  setDay(newDay);
-                }
-              }
-            >
-              <ToggleButton value="Seqgunda" aria-label="Segunda">
-                S
-              </ToggleButton>
-              <ToggleButton value="Terça" aria-label="Terça">
-                T
-              </ToggleButton>
-              <ToggleButton value="Quarta" aria-label="Quarta">
-                Q
-              </ToggleButton>
-              <ToggleButton value="Quinta" aria-label="Quinta">
-                Q
-              </ToggleButton>
-              <ToggleButton value="Sexta" aria-label="Sexta">
-                S
-              </ToggleButton>
-            </ToggleButtonGroup>
-
-            <Grid container spacing={2}>
-              <Grid item xs={6}>
-                <TextField
-                  name="startTime"
-                  label="De"
-                  variant="filled"
-                  type="time"
-                  fullWidth
-                  sx={{ mb: 2 }}
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                  onChange={ 
-                    (event: ChangeEvent<HTMLInputElement>) => {
-                      setStartTime(event.target.value);
-                    }
+    <>
+      <Box m={2}>
+        <FormControl component="fieldset">
+          <FormLabel component="legend">Dias da semana:</FormLabel>
+          <FormGroup row>
+            {
+              schedule.map((s) => (
+                <FormControlLabel
+                  key={s.id}
+                  control={
+                    <Checkbox
+                      {...register("dayOfWeek")}
+                      checked={dayOfWeek === s.day}
+                      onChange={handleDayOfWeekChange}
+                      name={s.day}
+                    />
                   }
+                  label={s.day}
                 />
-              </Grid>
-              <Grid item xs={6}>
-                <TextField
-                  name="endTime"
-                  label="Até"
-                  variant="filled"
-                  type="time"
-                  fullWidth
-                  sx={{ mb: 2 }}
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                  onChange={
-                    (event: ChangeEvent<HTMLInputElement>) => {
-                      setEndTime(event.target.value);
-                    }
-                  }
-                />
-              </Grid>
-              {/* <Grid item xs={6}>
-                <TextField
-                  label="De"
-                  variant="filled"
-                  type="time"
-                  fullWidth
-                  sx={{ mb: 2 }}
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                />
-              </Grid>
-              <Grid item xs={6}>
-                <TextField
-                  label="Até"
-                  variant="filled"
-                  type="time"
-                  fullWidth
-                  sx={{ mb: 2 }}
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                />
-              </Grid> */}
-            </Grid>
-
-            <DialogActions
-              style={{ justifyContent: 'flex-end', marginLeft: 'auto' }}
-            >
-              <Button
-                variant="contained"
-                color="primary"
-                size='large'
-                type="submit"
-                className="MuiButton-root MuiButton-contained bg-violet-500 px-5 h-12 rounded-md font-semibold hover:bg-violet-600 "
-              >
-                Salvar
-              </Button>
-            </DialogActions>
-          </Box>
-        </Box>
+              ))
+            }
+          </FormGroup>
+        </FormControl>
       </Box>
-    </form>
+      <Grid container spacing={2} justifyContent="center" >
+        <Grid item xs={3}>
+          <TextField
+            value={startTime}
+            label="De"
+            variant="filled"
+            type="time"
+            fullWidth
+            sx={{ mb: 2 }}
+            InputLabelProps={{
+              shrink: true,
+            }}
+            onChange={handleStartTimeChange}
+          />
+        </Grid>
+
+        <Grid item xs={3}>
+          <TextField
+            value={endTime}
+            label="Até"
+            variant="filled"
+            type="time"
+            fullWidth
+            sx={{ mb: 2 }}
+            InputLabelProps={{
+              shrink: true,
+            }}
+            onChange={handleEndTimeChange}
+          />
+        </Grid>
+      </Grid>
+      <Box m={2}>
+        <Button variant="contained" color="primary" onClick={() => handleDialogOpen(dayOfWeek, startTime, endTime)}>
+          Salvar
+        </Button>
+      </Box>
+      <Box m={2}>
+      </Box>
+      <Dialog open={showDialog} onClose={handleDialogClose}>
+        <DialogTitle>Salvar horário de trabalho</DialogTitle>
+        <DialogContent>
+          <p>Tem certeza que deseja salvar o horário de trabalho?</p>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDialogClose}>Cancelar</Button>
+          <Button onClick={
+            handleSubmit(() => handleScheduleUpdate())
+          }>Salvar</Button>
+        </DialogActions>
+      </Dialog>
+    </>
   );
-}
+};
+

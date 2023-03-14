@@ -6,10 +6,6 @@ import {
   Box,
   Button,
   Checkbox,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
   FormControl,
   FormControlLabel,
   FormGroup,
@@ -30,14 +26,13 @@ export const WorkSchedule = () => {
   const [dayOfWeek, setDayOfWeek] = useState<string>("");
   const [startTime, setStartTime] = useState<string>("");
   const [endTime, setEndTime] = useState<string>("");
-  const [showDialog, setShowDialog] = useState<boolean>(false);
   const { register, handleSubmit, reset } = useForm();
 
   const loadSchedule = async () => {
     try {
       const response = await axios.get<Schedule[]>("http://localhost:5555/schedule");
       console.log(response.data);
-      
+
       setSchedule(response.data);
     } catch (error) {
       console.error(error);
@@ -61,22 +56,10 @@ export const WorkSchedule = () => {
     setEndTime(event.target.value);
   };
 
-  const handleDialogOpen = (dayOfWeek: string, startTime: string, endTime: string) => {
-    setDayOfWeek(dayOfWeek);
-    setStartTime(startTime);
-    setEndTime(endTime);
-    setShowDialog(true);
-  };
-
-  const handleDialogClose = () => {
-    setShowDialog(false);
-    reset();
-  };
-
   const handleScheduleUpdate = async () => {
     try {
       const sId = schedule.find((s) => s.day === dayOfWeek)?.id;
-      
+
       const response = await axios.put<Schedule>(`http://localhost:5555/schedule/${sId}`, {
         startTime,
         endTime,
@@ -85,8 +68,7 @@ export const WorkSchedule = () => {
         oldSchedule.map((s) => (s.id === response.data.id ? response.data : s))
       );
       console.log(response.data);
-      
-      setShowDialog(false);
+      alert("Horário de trabalho atualizado com sucesso.");
     } catch (error) {
       console.error(error);
       alert("Erro ao atualizar horário de trabalho.");
@@ -111,7 +93,8 @@ export const WorkSchedule = () => {
                       name={s.day}
                     />
                   }
-                  label={s.day}
+                  label={s.day.slice(0, 3)}
+                  labelPlacement="top"
                 />
               ))
             }
@@ -121,7 +104,7 @@ export const WorkSchedule = () => {
       <Grid container spacing={2} justifyContent="center" >
         <Grid item xs={3}>
           <TextField
-            value={startTime}
+            // value={startTime}
             label="De"
             variant="filled"
             type="time"
@@ -136,7 +119,7 @@ export const WorkSchedule = () => {
 
         <Grid item xs={3}>
           <TextField
-            value={endTime}
+            // value={endTime}
             label="Até"
             variant="filled"
             type="time"
@@ -150,24 +133,18 @@ export const WorkSchedule = () => {
         </Grid>
       </Grid>
       <Box m={2}>
-        <Button variant="contained" color="primary" onClick={() => handleDialogOpen(dayOfWeek, startTime, endTime)}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={
+            handleSubmit(() => handleScheduleUpdate())
+          }
+        >
           Salvar
         </Button>
       </Box>
       <Box m={2}>
       </Box>
-      <Dialog open={showDialog} onClose={handleDialogClose}>
-        <DialogTitle>Salvar horário de trabalho</DialogTitle>
-        <DialogContent>
-          <p>Tem certeza que deseja salvar o horário de trabalho?</p>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleDialogClose}>Cancelar</Button>
-          <Button onClick={
-            handleSubmit(() => handleScheduleUpdate())
-          }>Salvar</Button>
-        </DialogActions>
-      </Dialog>
     </>
   );
 };

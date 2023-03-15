@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
+import TimePicker from 'react-time-picker'
 
 import axios from "axios";
 import {
@@ -45,6 +46,7 @@ export const WorkSchedule = () => {
   }, []);
 
   const handleDayOfWeekChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    event.preventDefault();
     setDayOfWeek(event.target.name);
   };
 
@@ -77,54 +79,73 @@ export const WorkSchedule = () => {
 
   return (
     <>
-      <Box m={2}>
+      <Box m={2} >
         <FormControl component="fieldset">
-          <FormLabel component="legend">Dias da semana:</FormLabel>
-          <FormGroup row>
-            {
-              schedule.map((s) => (
-                <FormControlLabel
-                  key={s.id}
-                  control={
-                    <Checkbox
-                      {...register("dayOfWeek")}
-                      checked={dayOfWeek === s.day}
-                      onChange={handleDayOfWeekChange}
-                      name={s.day}
-                    />
-                  }
-                  label={s.day.slice(0, 3)}
-                  labelPlacement="top"
-                />
-              ))
-            }
+          <FormLabel component="legend" sx={{
+            color: "#1a73e8",
+            fontSize: 15,
+            fontWeight: 300,
+            mb: 2,
+          }}>
+            SELECIONE O DIA DA SEMANA
+          </FormLabel>
+          <FormGroup row sx={{ mt: 3 }}>
+            {schedule.map((s) => (
+              <FormControlLabel
+                key={s.id}
+                control={
+                  <Checkbox
+                    {...register("dayOfWeek")}
+                    checked={dayOfWeek === s.day}
+                    onChange={handleDayOfWeekChange}
+                    name={s.day}
+                    sx={{
+                      color: "#1a73e8",
+                      shapeRendering: "geometricPrecision",
+                      "&.Mui-checked": {
+                        color: "#1a73e8",
+                      },
+                    }}
+                  />
+                }
+                label={s.day.slice(0, 3).toUpperCase()}
+                labelPlacement="top"
+              />
+            ))}
           </FormGroup>
         </FormControl>
       </Box>
       <Grid container spacing={2} justifyContent="center" >
-        <Grid item xs={3}>
+        <Grid item xs={5}>
           <TextField
-            // value={startTime}
+            name="startTime"
             label="De"
             variant="filled"
             type="time"
             fullWidth
-            sx={{ mb: 2 }}
+            sx={{
+              mb: 2,
+              mt: 2
+            }}
             InputLabelProps={{
               shrink: true,
             }}
-            onChange={handleStartTimeChange}
+            InputProps={{}}
+            onChange={handleStartTimeChange || undefined}
           />
         </Grid>
 
-        <Grid item xs={3}>
+        <Grid item xs={5}>
           <TextField
-            // value={endTime}
+            name="endTime"
             label="Até"
             variant="filled"
             type="time"
             fullWidth
-            sx={{ mb: 2 }}
+            sx={{
+              mb: 2,
+              mt: 2,
+            }}
             InputLabelProps={{
               shrink: true,
             }}
@@ -136,14 +157,19 @@ export const WorkSchedule = () => {
         <Button
           variant="contained"
           color="primary"
-          onClick={
-            handleSubmit(() => handleScheduleUpdate())
-          }
+          onClick={handleSubmit(() => handleScheduleUpdate())}
+          sx={{
+            width: "100%",
+            height: 50,
+            mt: 2,
+            mb: 2,
+            ":hover": {
+              backgroundColor: "#1a73e8",
+            },
+          }}
         >
           Salvar
         </Button>
-      </Box>
-      <Box m={2}>
       </Box>
     </>
   );

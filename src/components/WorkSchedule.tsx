@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import TimePicker from 'react-time-picker'
 
 import axios from "axios";
 import {
@@ -32,7 +31,6 @@ export const WorkSchedule = () => {
   const loadSchedule = async () => {
     try {
       const response = await axios.get<Schedule[]>("http://localhost:5555/schedule");
-      console.log(response.data);
 
       setSchedule(response.data);
     } catch (error) {
@@ -164,7 +162,7 @@ export const WorkSchedule = () => {
             mt: 2,
             mb: 2,
             ":hover": {
-              backgroundColor: "#1a73e8",
+              backgroundColor: "#5b5f9",
             },
           }}
         >

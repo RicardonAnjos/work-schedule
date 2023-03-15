@@ -131,7 +131,7 @@ export const WorkSchedule = () => {
               shrink: true,
             }}
             InputProps={{}}
-            onChange={handleStartTimeChange || undefined}
+            onChange={handleStartTimeChange}
           />
         </Grid>
 
